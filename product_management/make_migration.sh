@@ -1,0 +1,1 @@
+npm run typeorm -- migration:create src/infrastructure/database/migrations/MyManualChange
