@@ -1,0 +1,38 @@
+{
+    "name": "cart_service",
+    "version": "1.0.0",
+    "description": "Cart Service with Redis storage",
+    "main": "dist/index.js",
+    "scripts": {
+        "start": "node dist/index.js",
+        "dev": "ts-node-dev --respawn src/index.ts",
+        "build": "tsc",
+        "test": "jest"
+    },
+    "dependencies": {
+        "@grpc/grpc-js": "^1.9.0",
+        "@grpc/proto-loader": "^0.7.8",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "ioredis": "^5.3.2",
+        "jsonwebtoken": "^9.0.2",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1",
+        "uuid": "^9.0.0"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.17",
+        "@types/jsonwebtoken": "^9.0.5",
+        "@types/node": "^20.5.0",
+        "@types/swagger-jsdoc": "^6.0.4",
+        "@types/swagger-ui-express": "^4.1.8",
+        "@types/uuid": "^9.0.2",
+        "@types/jest": "^29.5.3",
+        "jest": "^29.6.2",
+        "ts-jest": "^29.1.1",
+        "supertest": "^6.3.3",
+        "@types/supertest": "^2.0.12",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.1.6"
+    }
+}

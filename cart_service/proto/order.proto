@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package ecommerce.orders;
+
+// The Order Service Contract
+service OrderService {
+  // RPC for creating the order
+  rpc CreateOrder (CreateOrderRequest) returns (OrderResponse);
+
+  // RPC for checking order status
+  rpc GetOrderStatus (GetOrderStatusRequest) returns (OrderResponse);
+}
+
+message OrderItem {
+  string product_id = 1;
+  string seller_id = 2;
+  string product_name = 3;
+  double unit_price = 4;
+  int32 quantity = 5;
+}
+
+message Address {
+  string full_name = 1;
+  string phone = 2;
+  string city = 3;
+  string street = 4;
+}
+
+message CreateOrderRequest {
+  string user_id = 1;
+  repeated OrderItem items = 2;
+  Address shipping_address = 3;
+  double total_amount = 4;
+}
+
+message OrderResponse {
+  string order_id = 1;
+  string status = 2; // e.g., "CREATED", "PENDING_PAYMENT"
+  string created_at = 3;
+}
+
+message GetOrderStatusRequest {
+  string order_id = 1;
+}
