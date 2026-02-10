@@ -17,13 +17,11 @@ describe('CartController', () => {
             addItem: jest.fn(),
             removeItem: jest.fn(),
             clearCart: jest.fn(),
+            checkout: jest.fn(),
         } as any;
 
-        mockOrderClient = {
-            createOrder: jest.fn(),
-        } as any;
 
-        controller = new CartController(mockCartUseCases, mockOrderClient);
+        controller = new CartController(mockCartUseCases);
 
         mockRequest = {
             user: { id: 'user-1', roles: [] },
@@ -96,26 +94,21 @@ describe('CartController', () => {
 
     describe('checkout', () => {
         it('should create order and clear cart', async () => {
-            const cart = { user_id: 'user-1', items: [{ productId: 'p1' }], total_amount: 10 };
-            mockCartUseCases.getCart.mockResolvedValue(cart as any);
-            mockOrderClient.createOrder.mockResolvedValue({ orderId: 'ord-1' });
-
             mockRequest.body = { shippingAddress: { city: 'Test' } };
-
+            mockCartUseCases.checkout.mockResolvedValue({ orderId: 'ord-1' } as any);
             await controller.checkout(mockRequest as AuthRequest, mockResponse as Response);
-
-            expect(mockOrderClient.createOrder).toHaveBeenCalled();
-            expect(mockCartUseCases.clearCart).toHaveBeenCalledWith('user-1');
+            expect(mockCartUseCases.checkout).toHaveBeenCalledWith('user-1', { city: 'Test' });
             expect(mockResponse.status).toHaveBeenCalledWith(201);
             expect(mockResponse.json).toHaveBeenCalledWith({ orderId: 'ord-1' });
         });
 
         it('should return 400 if cart is empty', async () => {
-            mockCartUseCases.getCart.mockResolvedValue({ items: [] } as any);
+            mockCartUseCases.checkout.mockRejectedValue(new Error('Cart is empty'));
 
             await controller.checkout(mockRequest as AuthRequest, mockResponse as Response);
 
-            expect(mockResponse.status).toHaveBeenCalledWith(400);
+            expect(mockResponse.status).toHaveBeenCalledWith(500);
+            expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Cart is empty' });
         });
     });
 });

@@ -1,10 +1,12 @@
 import { CartUseCases } from '../../../src/application/use-cases/CartUseCases';
 import { ICartRepository } from '../../../src/domain/repositories/ICartRepository';
 import { CartItem } from '../../../src/domain/entities/Cart';
+import { IOrderClient } from '../../../src/domain/gprc/OrderClient';
 
 describe('CartUseCases', () => {
     let cartUseCases: CartUseCases;
     let mockCartRepository: jest.Mocked<ICartRepository>;
+    let mockOrderClient: jest.Mocked<IOrderClient>;
 
     beforeEach(() => {
         mockCartRepository = {
@@ -13,7 +15,10 @@ describe('CartUseCases', () => {
             removeItem: jest.fn(),
             clearCart: jest.fn(),
         };
-        cartUseCases = new CartUseCases(mockCartRepository);
+        mockOrderClient = {
+            createOrder: jest.fn(),
+        };
+        cartUseCases = new CartUseCases(mockCartRepository, mockOrderClient);
     });
 
     it('should get cart for a user', async () => {
@@ -58,5 +63,31 @@ describe('CartUseCases', () => {
         await cartUseCases.clearCart(userId);
 
         expect(mockCartRepository.clearCart).toHaveBeenCalledWith(userId);
+    });
+
+    describe('checkout', () => {
+        it('should checkout successfully', async () => {
+            const userId = 'user-123';
+            const shippingAddress = { city: 'Test' };
+            const cart = { user_id: userId, items: [{ productId: 'p1' }], total_amount: 10 };
+            const orderResponse = { orderId: 'ord-1' };
+
+            mockCartRepository.getCart.mockResolvedValue(cart as any);
+            mockOrderClient.createOrder.mockResolvedValue(orderResponse);
+            mockCartRepository.clearCart.mockResolvedValue(undefined);
+
+            const result = await cartUseCases.checkout(userId, shippingAddress);
+
+            expect(result).toEqual(orderResponse);
+            expect(mockOrderClient.createOrder).toHaveBeenCalledWith(cart, shippingAddress);
+            expect(mockCartRepository.clearCart).toHaveBeenCalledWith(userId);
+        });
+
+        it('should throw error if cart is empty', async () => {
+            const userId = 'user-123';
+            mockCartRepository.getCart.mockResolvedValue({ items: [] } as any);
+
+            await expect(cartUseCases.checkout(userId, {})).rejects.toThrow('Cart is empty');
+        });
     });
 });

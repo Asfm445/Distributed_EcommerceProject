@@ -18,9 +18,9 @@ app.use('/api/v1/cart/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // IoC / Dependency Injection
 const cartRepository = new RedisCartRepository();
-const cartUseCases = new CartUseCases(cartRepository);
 const orderClient = new OrderClient();
-const cartController = new CartController(cartUseCases, orderClient);
+const cartUseCases = new CartUseCases(cartRepository, orderClient);
+const cartController = new CartController(cartUseCases);
 
 app.use('/api/v1/cart', cartRoutes(cartController));
 

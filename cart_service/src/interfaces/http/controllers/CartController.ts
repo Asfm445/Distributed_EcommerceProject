@@ -1,12 +1,10 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/AuthMiddleware';
 import { CartUseCases } from '../../../application/use-cases/CartUseCases';
-import { OrderClient } from '../../../infrastructure/grpc/OrderClient';
 
 export class CartController {
     constructor(
         private cartUseCases: CartUseCases,
-        private orderClient: OrderClient
     ) { }
 
     async getCart(req: AuthRequest, res: Response) {
@@ -71,15 +69,7 @@ export class CartController {
             const userId = req.user!.id;
             const { shippingAddress } = req.body;
 
-            const cart = await this.cartUseCases.getCart(userId);
-            if (cart.items.length === 0) {
-                return res.status(400).json({ error: 'Cart is empty' });
-            }
-
-            const orderResponse = await this.orderClient.createOrder(cart, shippingAddress);
-
-            // Clear cart after successful order creation
-            await this.cartUseCases.clearCart(userId);
+            const orderResponse = await this.cartUseCases.checkout(userId, shippingAddress);
 
             res.status(201).json(orderResponse);
         } catch (error) {

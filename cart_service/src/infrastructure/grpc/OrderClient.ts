@@ -2,8 +2,9 @@ import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
 import path from 'path';
 import { Cart } from '../../domain/entities/Cart';
+import { IOrderClient } from '../../domain/gprc/OrderClient';
 
-export class OrderClient {
+export class OrderClient implements IOrderClient {
     private client: any;
 
     constructor() {
