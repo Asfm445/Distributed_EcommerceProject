@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS order_status_histories;
+DROP TABLE IF EXISTS order_addresses;
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
