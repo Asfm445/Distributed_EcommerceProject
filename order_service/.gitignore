@@ -1,0 +1,33 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of `go coverage`
+*.out
+coverage.txt
+cover.out
+
+# Dependency directory (removed from Go 1.13 and up by default)
+vendor/
+
+# Go workspace file
+go.work
+
+# Environment variables
+.env
+.env.*
+
+# IDE specific settings
+.idea/
+.vscode/
+
+# Build artifacts
+dist/
+build/

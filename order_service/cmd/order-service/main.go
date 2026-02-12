@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"github.com/Asfm445/Distributed_EcommerceProject/order_service/internal/application/usecases"
 	infra_grpc "github.com/Asfm445/Distributed_EcommerceProject/order_service/internal/infrastructure/grpc"
@@ -29,6 +30,23 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect database: %v", err)
 	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("failed to get database instance: %v", err)
+	}
+
+	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	sqlDB.SetMaxIdleConns(50)
+
+	// SetMaxOpenConns sets the maximum number of open connections to the database.
+	sqlDB.SetMaxOpenConns(300)
+
+	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	// SetConnMaxIdleTime sets the maximum amount of time a connection may be idle.
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
 
 	// Run migrations
 	m, err := migrate.New(

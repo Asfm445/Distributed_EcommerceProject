@@ -3,6 +3,7 @@ package messaging
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/Asfm445/Distributed_EcommerceProject/order_service/internal/domain"
@@ -15,12 +16,27 @@ type RabbitMQProducer struct {
 }
 
 func NewRabbitMQProducer(url string) (*RabbitMQProducer, error) {
-	conn, err := amqp.Dial(url)
+	var conn *amqp.Connection
+	var err error
+
+	// Retry logic for RabbitMQ connection
+	maxRetries := 10
+	for i := 1; i <= maxRetries; i++ {
+		conn, err = amqp.Dial(url)
+		if err == nil {
+			break
+		}
+		log.Printf("Failed to connect to RabbitMQ (attempt %d/%d): %v. Retrying in 5 seconds...", i, maxRetries, err)
+		time.Sleep(5 * time.Second)
+	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	ch, err := conn.Channel()
 	if err != nil {
+		conn.Close()
 		return nil, err
 	}
 	err = ch.ExchangeDeclare(
@@ -33,6 +49,8 @@ func NewRabbitMQProducer(url string) (*RabbitMQProducer, error) {
 		nil,            // arguments
 	)
 	if err != nil {
+		ch.Close()
+		conn.Close()
 		return nil, err
 	}
 	return &RabbitMQProducer{conn: conn, channel: ch}, nil
