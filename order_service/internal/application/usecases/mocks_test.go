@@ -43,3 +43,8 @@ func (m *MockEventProducer) EmitOrderCreated(ctx context.Context, order *domain.
 	args := m.Called(ctx, order)
 	return args.Error(0)
 }
+
+func (m *MockEventProducer) EmitOrderPaid(ctx context.Context, order *domain.Order) error {
+	args := m.Called(ctx, order)
+	return args.Error(0)
+}

@@ -51,9 +51,9 @@ services:
     ports:
       - "50051:50051"
     environment:
+      - PORT=50051
       - DATABASE_URL=${ORDER_DATABASE_URL}
       - RABBITMQ_URL=${ORDER_RABBITMQ_URL}
-      - PORT=50051
     depends_on:
       postgres:
         condition: service_healthy
@@ -72,6 +72,22 @@ services:
     depends_on:
       - redis
       - order-service
+
+  payment-service:
+    build: ./payment_service
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  delivery-service:
+    build: ./delivery_service
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   postgres_data:

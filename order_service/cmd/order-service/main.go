@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"os"
@@ -78,6 +79,19 @@ func main() {
 	// Use cases
 	createUC := usecases.NewCreateOrderUseCase(repo, producer)
 	getUC := usecases.NewGetOrderUseCase(repo)
+	updateStatusUC := usecases.NewUpdateOrderStatusUseCase(repo, producer)
+
+	// RabbitMQ Consumer
+	consumer, err := messaging.NewRabbitMQConsumer(rmqURL, updateStatusUC)
+	if err != nil {
+		log.Printf("failed to connect rabbitmq consumer: %v", err)
+	} else {
+		defer consumer.Close()
+		err = consumer.Start(context.Background())
+		if err != nil {
+			log.Printf("failed to start rabbitmq consumer: %v", err)
+		}
+	}
 
 	// gRPC Handler
 	handler := infra_grpc.NewOrderHandler(createUC, getUC)

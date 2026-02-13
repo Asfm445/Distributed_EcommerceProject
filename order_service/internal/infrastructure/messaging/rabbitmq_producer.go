@@ -65,6 +65,12 @@ type OrderCreatedEvent struct {
 	Timestamp   time.Time   `json:"timestamp"`
 }
 
+type OrderPaidEvent struct {
+	OrderID   string    `json:"order_id"`
+	Amount    float64   `json:"amount"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
 func (p *RabbitMQProducer) EmitOrderCreated(ctx context.Context, order *domain.Order) error {
 	event := OrderCreatedEvent{
 		OrderID:     order.ID.String(),
@@ -98,4 +104,27 @@ func (p *RabbitMQProducer) Close() {
 	if p.conn != nil {
 		p.conn.Close()
 	}
+}
+
+func (p *RabbitMQProducer) EmitOrderPaid(ctx context.Context, order *domain.Order) error {
+	event := OrderPaidEvent{
+		OrderID:   order.ID.String(),
+		Amount:    order.TotalAmount,
+		Timestamp: time.Now(),
+	}
+
+	body, err := json.Marshal(event)
+	if err != nil {
+		return err
+	}
+
+	return p.channel.PublishWithContext(ctx,
+		"order_events", // exchange
+		"order.paid",   // routing key
+		false,          // mandatory
+		false,          // immediate
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		})
 }

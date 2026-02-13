@@ -1,6 +1,6 @@
 module github.com/Asfm445/Distributed_EcommerceProject/order_service
 
-go 1.25.5
+go 1.24.0
 
 require (
 	github.com/golang-migrate/migrate/v4 v4.19.1

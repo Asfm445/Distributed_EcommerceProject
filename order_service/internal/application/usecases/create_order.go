@@ -32,14 +32,10 @@ type AddressInput struct {
 
 type CreateOrderUseCase struct {
 	repo          domain.OrderRepository
-	eventProducer EventProducer
+	eventProducer domain.OrderEventProducer
 }
 
-type EventProducer interface {
-	EmitOrderCreated(ctx context.Context, order *domain.Order) error
-}
-
-func NewCreateOrderUseCase(repo domain.OrderRepository, eventProducer EventProducer) *CreateOrderUseCase {
+func NewCreateOrderUseCase(repo domain.OrderRepository, eventProducer domain.OrderEventProducer) *CreateOrderUseCase {
 	return &CreateOrderUseCase{repo: repo, eventProducer: eventProducer}
 }
 
