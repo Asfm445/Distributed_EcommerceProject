@@ -38,7 +38,7 @@ export const cartRoutes = (cartController: CartController) => {
 
     /**
      * @openapi
-     * /:
+     * /api/v1/cart/:
      *   get:
      *     summary: Get user's cart
      *     tags: [Cart]
@@ -56,7 +56,7 @@ export const cartRoutes = (cartController: CartController) => {
 
     /**
      * @openapi
-     * /:
+     * /api/v1/cart/:
      *   post:
      *     summary: Add an item to the cart
      *     tags: [Cart]
@@ -76,7 +76,7 @@ export const cartRoutes = (cartController: CartController) => {
 
     /**
      * @openapi
-     * /items/{productId}:
+     * /api/v1/cart/items/{productId}:
      *   delete:
      *     summary: Remove an item from the cart
      *     tags: [Cart]
@@ -96,7 +96,7 @@ export const cartRoutes = (cartController: CartController) => {
 
     /**
      * @openapi
-     * /:
+     * /api/v1/cart/:
      *   delete:
      *     summary: Clear the entire cart
      *     tags: [Cart]
@@ -110,7 +110,7 @@ export const cartRoutes = (cartController: CartController) => {
 
     /**
      * @openapi
-     * /checkout:
+     * /api/v1/cart/checkout:
      *   post:
      *     summary: Checkout the cart
      *     tags: [Cart]

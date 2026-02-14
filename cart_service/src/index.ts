@@ -24,6 +24,11 @@ const cartController = new CartController(cartUseCases);
 
 app.use('/api/v1/cart', cartRoutes(cartController));
 
+// Expose Swagger JSON
+app.get("/swagger.json", (req, res) => {
+    res.json(swaggerSpec);
+});
+
 const port = process.env.PORT || 8001;
 app.listen(port, () => {
     console.log(`Cart Service running on port ${port}`);

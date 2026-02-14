@@ -108,6 +108,11 @@ async function start() {
         const router = createProductRouter(productController, categoryController, inventoryController);
         app.use("/api/v1", router);
 
+        // Expose Swagger JSON
+        app.get("/swagger.json", (req, res) => {
+            res.json(swaggerSpec);
+        });
+
         const PORT = process.env.PORT || 8000;
         app.listen(PORT, () => console.log(`Product Service running on port ${PORT}`));
     } catch (error) {

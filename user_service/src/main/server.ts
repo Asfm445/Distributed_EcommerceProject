@@ -46,6 +46,11 @@ const userRouter = createUserRouter(userController);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 
+// Expose Swagger JSON
+app.get("/swagger.json", (req, res) => {
+    res.json(swaggerSpec);
+});
+
 
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/user_db";
