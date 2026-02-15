@@ -1,59 +1,142 @@
 # Distributed Ecommerce Project
 
-A production-ready microservices architecture for an e-commerce platform, built with Go, Node.js, PostgreSQL, MongoDB, Redis, and RabbitMQ.
+A production-ready microservices architecture for an e-commerce platform, built with Go, Node.js, and a suite of modern data stores and messaging systems.
 
-## Architecture
+## 🚀 Overview
 
-The project follows a microservices architecture pattern, emphasizing service isolation, asynchronous communication, and scalability.
+This project implements a distributed e-commerce system designed for scalability, high availability, and loose coupling. It demonstrates best practices in microservices architecture, including DDD (Domain-Driven Design), event-driven communication, and containerized deployment.
 
-### Services
+### ⚠️ Problem Statement
 
-| Service | Language | Data Store | Communication |
-| :--- | :--- | :--- | :--- |
-| **Nginx Gateway** | - | - | HTTP (Port 80) |
-| **[User Service](./user_service)** | Node.js | MongoDB | REST (Internal: 8002) |
-| **[Product Management](./product_management)** | Node.js | PostgreSQL | REST (Internal: 8000), RabbitMQ |
-| **[Cart Service](./cart_service)** | Node.js | Redis | REST (Internal: 8001), gRPC Client |
-| **[Order Service](./order_service)** | Go | PostgreSQL | gRPC Server, RabbitMQ (Internal) |
-| **[Payment Service](./payment_service)** | Go | - | RabbitMQ (Internal) |
-| **[Delivery Service](./delivery_service)** | Go | - | RabbitMQ (Internal) |
-| **Docs Service** | Node.js | - | Documentation Proxy (Internal) |
+Building a monolithic e-commerce platform often leads to "Big Ball of Mud" architectures where scaling specific components (like search or payments) is difficult, and a failure in one module can bring down the entire system. 
 
-## Getting Started
+This project solves these issues by:
+- **Service Isolation**: Each domain (Users, Products, Orders, etc.) is a separate service.
+- **Polyglot Persistence**: Using the best database for the job (Redis for speed, PostgreSQL for relational data, MongoDB for flexible user profiles).
+- **Event-Driven Workflows**: Long-running processes like payment and delivery are handled asynchronously via RabbitMQ.
+- **API Orchestration**: An Nginx gateway provides a single entry point, while internal services communicate via gRPC or message queues.
+
+## 🛠️ Tech Stack
+
+- **Backend**: [Go](https://golang.org/) (High-performance internal services), [Node.js](https://nodejs.org/) (IO-intensive public services).
+- **Communication**: 
+  - **REST**: External client communication via Nginx.
+  - **gRPC**: High-performance, low-latency internal service-to-service communication.
+  - **RabbitMQ**: Asynchronous event-driven messaging for decoupled workflows.
+- **Databases**: 
+  - **PostgreSQL**: Relational data for Products and Orders.
+  - **MongoDB**: Flexible document storage for User profiles.
+  - **Redis**: Low-latency cache and session storage for Carts.
+- **Infrastructure**: Docker & Docker Compose for orchestration.
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    subgraph "External"
+        Client[Mobile/Web Client]
+    end
+
+    subgraph "Edge Layer"
+        Nginx[Nginx Gateway]
+    end
+
+    subgraph "Public Services (Node.js)"
+        UserS[User Service]
+        ProdS[Product Management]
+        CartS[Cart Service]
+        DocsS[Docs Service]
+    end
+
+    subgraph "Internal Services (Go)"
+        OrderS[Order Service]
+        PayS[Payment Service]
+        DelS[Delivery Service]
+    end
+
+    subgraph "Infrastructure"
+        Postgres[(PostgreSQL)]
+        Mongo[(MongoDB)]
+        Redis[(Redis)]
+        RMQ[[RabbitMQ]]
+    end
+
+    Client --> Nginx
+    Nginx --> UserS
+    Nginx --> ProdS
+    Nginx --> CartS
+    Nginx --> DocsS
+
+    UserS --> Mongo
+    ProdS --> Postgres
+    ProdS --> RMQ
+    CartS --> Redis
+    CartS -- gRPC --> OrderS
+
+    OrderS --> Postgres
+    OrderS --> RMQ
+    PayS --> RMQ
+    DelS --> RMQ
+```
+
+## 📦 Services Breakdown
+
+| Service | Responsibility | Stack |
+| :--- | :--- | :--- |
+| **User Service** | Auth, Profiles, JWT management. | Node.js, MongoDB |
+| **Product Management** | Catalog, Search, Inventory updates. | Node.js, PostgreSQL, RabbitMQ |
+| **Cart Service** | Real-time cart management, TTL sessions. | Node.js, Redis, gRPC Client |
+| **Order Service** | Order lifecycle, gRPC server. | Go, PostgreSQL, RabbitMQ |
+| **Payment Service** | Payment processing (Mock). | Go, RabbitMQ |
+| **Delivery Service** | Shipment tracking (Mock). | Go, RabbitMQ |
+| **Docs Service** | Unified Swagger UI documentation. | Node.js |
+
+## 📂 Project Structure
+
+```text
+.
+├── cart_service/         # Node.js: Cart management (Redis)
+├── delivery_service/     # Go: Delivery tracking (RabbitMQ)
+├── docs_service/         # Node.js: API Documentation Aggregator
+├── nginx/                # Gateway configuration
+├── order_service/        # Go: Core ordering logic (PostgreSQL)
+├── payment_service/      # Go: Payment processing (RabbitMQ)
+├── product_management/   # Node.js: Catalog & Inventory (PostgreSQL)
+├── user_service/         # Node.js: Identity & Access (MongoDB)
+├── docker-compose.yml    # Full system orchestration
+└── .env.example          # Environment variables template
+```
+
+## 🚦 Getting Started
 
 ### Prerequisites
 
 - [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
-- [Node.js](https://nodejs.org/) (for local development)
-- [Go](https://golang.org/) (for local development)
 
-### Running with Docker Compose
+### Running the System
 
-The easiest way to get the entire system up and running is using Docker Compose:
-
-```bash
-docker-compose up --build
-```
-
-This will start the Nginx Gateway, all microservices, databases, and infrastructure components.
+1. **Clone the repository** and copy the environment file:
+   ```bash
+   cp .env.example .env
+   ```
+2. **Start the containers**:
+   ```bash
+   docker-compose up --build
+   ```
+3. **Wait for health checks**: PostgreSQL and RabbitMQ may take a few seconds to stabilize.
 
 ### API Documentation
 
-Once the system is running, you can access the **Unified API Documentation** at:
-[http://localhost/docs](http://localhost/docs)
+Access the **Unified API Documentation** at:
+👉 [http://localhost/docs](http://localhost/docs)
 
-This documentation merges specifications from all public-facing services (User, Product, Cart).
+This UI merges specifications from all public-facing services into a single interactive Swagger console.
 
-## Development
+## 🛠️ Development
 
-Each service can be developed independently. Refer to the individual `README.md` files in each service directory for specific setup instructions.
+- **Local Setup**: Each service contains its own `package.json` or `go.mod`. Use `npm install` for Node.js services and `go mod download` for Go services.
+- **Migrations**: Database migrations are handled per-service. Check `product_management/database.sql` and `order_service/migrations`.
+- **Testing**: Run tests using `npm test` or `go test ./...` in the respective service directories.
 
-## Deployment Roadmap (AWS)
-
-For production deployment, we recommend the following AWS architecture:
-- **Compute**: AWS ECS with Fargate for serverless container orchestration.
-- **Databases**: Amazon RDS (PostgreSQL), Amazon ElastiCache (Redis), MongoDB Atlas.
-- **Messaging**: Amazon MQ (RabbitMQ).
-- **CI/CD**: GitHub Actions deploying to Amazon ECR and ECS.
-
-See the detailed [AWS Deployment Strategy](./brain/implementation_plan.md) for more information.
+---
+*Built with ❤️ for scalable e-commerce.*
