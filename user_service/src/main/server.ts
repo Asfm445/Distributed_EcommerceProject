@@ -13,7 +13,13 @@ import { createUserRouter } from "../infrastructure/web/routes/user_routes.js";
 import { authMiddleware } from "../infrastructure/web/middlewares/auth_middleware.js";
 import { swaggerSpec } from "../infrastructure/web/swagger.js";
 
-dotenv.config();
+const result = dotenv.config();
+if (result.error) {
+    console.error("Dotenv load error:", result.error);
+} else {
+    console.log("Dotenv loaded successfully");
+    console.log("Project root:", process.cwd());
+}
 
 const app = express();
 app.use(express.json());
@@ -54,6 +60,7 @@ app.get("/swagger.json", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/user_db";
+console.log(MONGODB_URI);
 
 async function start() {
     try {
